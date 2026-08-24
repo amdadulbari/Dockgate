@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 340" width="920" height="340" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" role="img" aria-label="Architecture: an AI agent sends Docker requests to DockGate, which checks each against policy and audits it, forwarding only approved requests to the Docker Engine.">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="gate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d9488"/>
+      <stop offset="1" stop-color="#0f766e"/>
+    </linearGradient>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <style>
+      .card  { rx:14; }
+      .title { fill:#e5e7eb; font-weight:700; }
+      .sub   { fill:#94a3b8; font-size:12px; }
+      .lbl   { fill:#e5e7eb; font-size:16px; font-weight:600; }
+      .mono  { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    </style>
+  </defs>
+
+  <!-- panel -->
+  <rect x="0" y="0" width="920" height="340" rx="20" fill="url(#bg)"/>
+  <text x="460" y="42" text-anchor="middle" class="title" font-size="20">DockGate — a policy gateway in front of the Docker socket</text>
+
+  <!-- connection lines -->
+  <line x1="196" y1="180" x2="360" y2="180" stroke="#334155" stroke-width="2"/>
+  <line x1="560" y1="180" x2="724" y2="180" stroke="#334155" stroke-width="2"/>
+
+  <!-- lock on the privileged link -->
+  <g transform="translate(636,150)" opacity="0.9">
+    <rect x="-9" y="0" width="18" height="13" rx="3" fill="#334155" stroke="#64748b"/>
+    <path d="M -5 0 v -4 a 5 5 0 0 1 10 0 v 4" fill="none" stroke="#64748b" stroke-width="2"/>
+  </g>
+  <text x="642" y="205" text-anchor="middle" class="sub">never exposed</text>
+
+  <!-- AI Agent -->
+  <g>
+    <rect x="46" y="140" width="150" height="80" rx="14" fill="#1e293b" stroke="#334155"/>
+    <text x="121" y="176" text-anchor="middle" class="lbl">AI&#160;Agent</text>
+    <text x="121" y="198" text-anchor="middle" class="sub">Docker API client</text>
+  </g>
+
+  <!-- DockGate (highlighted) -->
+  <g>
+    <rect x="360" y="122" width="200" height="116" rx="16" fill="url(#gate)" stroke="#2dd4bf" stroke-width="1.5"/>
+    <text x="460" y="158" text-anchor="middle" class="lbl" font-size="18">DockGate</text>
+    <text x="460" y="180" text-anchor="middle" fill="#ccfbf1" font-size="12">classify → check policy</text>
+    <text x="460" y="197" text-anchor="middle" fill="#ccfbf1" font-size="12">→ audit → forward</text>
+    <!-- audit blink -->
+    <circle cx="378" cy="139" r="4" fill="#f8fafc">
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="1.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Docker Engine -->
+  <g>
+    <rect x="724" y="140" width="150" height="80" rx="14" fill="#1e293b" stroke="#334155"/>
+    <text x="799" y="176" text-anchor="middle" class="lbl">Docker&#160;Engine</text>
+    <text x="799" y="198" text-anchor="middle" class="sub mono">/var/run/docker.sock</text>
+  </g>
+
+  <!-- ALLOWED packet: agent -> gate -> engine -->
+  <circle r="7" fill="#22c55e" filter="url(#soft)">
+    <animate attributeName="cx" dur="3.6s" repeatCount="indefinite"
+             keyTimes="0;0.30;0.55;0.92;1" values="196;360;560;724;724"/>
+    <animate attributeName="cy" dur="3.6s" repeatCount="indefinite" values="180;180;180;180;180"/>
+    <animate attributeName="opacity" dur="3.6s" repeatCount="indefinite"
+             keyTimes="0;0.05;0.9;1" values="0;1;1;0"/>
+  </circle>
+
+  <!-- DENIED packet: agent -> gate -> bounces back -->
+  <circle r="7" fill="#ef4444" filter="url(#soft)">
+    <animate attributeName="cx" dur="3.6s" begin="1.8s" repeatCount="indefinite"
+             keyTimes="0;0.32;0.5;0.85;1" values="196;360;360;196;196"/>
+    <animate attributeName="opacity" dur="3.6s" begin="1.8s" repeatCount="indefinite"
+             keyTimes="0;0.05;0.82;0.95;1" values="0;1;1;0;0"/>
+  </circle>
+
+  <!-- DENIED flash at the gate -->
+  <g transform="translate(360,180)">
+    <circle r="13" fill="none" stroke="#ef4444" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" dur="3.6s" begin="1.8s" repeatCount="indefinite"
+               keyTimes="0;0.34;0.36;0.5;0.52;1" values="0;0;1;1;0;0"/>
+      <animate attributeName="r" dur="3.6s" begin="1.8s" repeatCount="indefinite"
+               keyTimes="0;0.34;0.5;1" values="9;9;16;16"/>
+    </circle>
+    <path d="M -5 -5 L 5 5 M 5 -5 L -5 5" stroke="#ef4444" stroke-width="2.5" opacity="0">
+      <animate attributeName="opacity" dur="3.6s" begin="1.8s" repeatCount="indefinite"
+               keyTimes="0;0.34;0.36;0.5;0.52;1" values="0;0;1;1;0;0"/>
+    </path>
+  </g>
+
+  <!-- legend -->
+  <g transform="translate(300,300)">
+    <circle cx="0" cy="0" r="6" fill="#22c55e"/>
+    <text x="14" y="4" class="sub" font-size="13">allowed → reaches Docker</text>
+    <circle cx="230" cy="0" r="6" fill="#ef4444"/>
+    <text x="244" y="4" class="sub" font-size="13">denied → blocked &amp; audited</text>
+  </g>
+</svg>
