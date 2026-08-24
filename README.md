@@ -142,6 +142,30 @@ kill -HUP "$(pgrep dockgate)"   # apply an edited policy.yaml live
 
 A policy is deliberately small: a default action plus an ordered list of rules.
 
+### Simplest example: read-only
+
+Deny everything, then allow only the operations that observe Docker without
+changing anything. The agent can look, but never touch.
+
+```yaml
+default_action: deny
+
+rules:
+  - name: "Read-only"
+    effect: allow
+    actions:
+      - system.ping
+      - container.list
+      - container.inspect
+      - container.logs
+      - image.list
+```
+
+With this policy `docker ps`, `docker logs`, and `docker inspect` succeed, while
+`docker run`, `docker stop`, `docker rm`, and everything else return `403`.
+
+### A fuller example
+
 ```yaml
 default_action: deny        # what to do when no rule matches (deny | allow)
 
