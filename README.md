@@ -228,6 +228,4 @@ Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **If DockGate is useful to you, please ⭐ star the repo — it genuinely helps.**
 
-MIT © [Md. Amdadul Bari Imad](https://github.com/amdadulbari)
-
 </div>
