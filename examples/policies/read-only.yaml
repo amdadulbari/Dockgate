@@ -1,0 +1,25 @@
+# Read-only policy: the agent may observe Docker but change nothing.
+# Ideal for a monitoring / diagnostics SRE agent.
+default_action: deny
+
+rules:
+  - name: "Read-only observability"
+    effect: allow
+    actions:
+      - system.ping
+      - system.version
+      - system.info
+      - system.df
+      - system.events
+      - container.list
+      - container.inspect
+      - container.logs
+      - container.top
+      - container.stats
+      - image.list
+      - image.inspect
+      - image.history
+      - network.list
+      - network.inspect
+      - volume.list
+      - volume.inspect

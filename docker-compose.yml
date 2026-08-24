@@ -1,0 +1,42 @@
+# Example deployment: an AI agent that can only reach Docker through DockGate.
+#
+#   ┌────────────┐     TCP :2375      ┌───────────┐   /var/run/docker.sock   ┌──────────────┐
+#   │  ai-agent  │ ─────────────────► │  dockgate │ ───────────────────────► │ Docker Engine │
+#   └────────────┘   (policy-checked) └───────────┘      (never exposed)     └──────────────┘
+#
+# The agent container has NO access to the Docker socket. Only DockGate does,
+# and DockGate enforces policy.yaml on every request.
+
+services:
+  dockgate:
+    build: .
+    # Or use a published image once you have one:
+    # image: ghcr.io/amdadulbari/dockgate:latest
+    command: ["--listen", "0.0.0.0:2375", "--policy", "/etc/dockgate/policy.yaml"]
+    volumes:
+      # The real Docker socket — mounted ONLY into DockGate.
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./policy.yaml:/etc/dockgate/policy.yaml:ro
+    # DockGate needs to belong to the host's "docker" group to use the socket.
+    # Replace 999 with your host's docker gid: `getent group docker | cut -d: -f3`.
+    group_add:
+      - "999"
+    networks:
+      - agent-net
+    restart: unless-stopped
+
+  # Illustrative agent. It talks to DockGate, not to the Docker socket.
+  ai-agent:
+    image: alpine:3.20
+    depends_on:
+      - dockgate
+    environment:
+      # Point any Docker client / SDK at DockGate.
+      DOCKER_HOST: "tcp://dockgate:2375"
+    command: ["sleep", "infinity"]
+    networks:
+      - agent-net
+
+networks:
+  agent-net:
+    driver: bridge

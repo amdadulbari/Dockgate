@@ -1,0 +1,23 @@
+# Restart-only policy: a remediation agent that can inspect and bounce existing
+# containers, but cannot create, remove, or exec into anything.
+default_action: deny
+
+rules:
+  - name: "Inspect"
+    effect: allow
+    actions:
+      - system.ping
+      - container.list
+      - container.inspect
+      - container.logs
+      - container.stats
+
+  - name: "Restart existing containers"
+    effect: allow
+    actions:
+      - container.stop
+      - container.start
+      - container.restart
+
+  # Everything else — create, remove, exec, image pulls, networks, volumes —
+  # falls through to default_action: deny.

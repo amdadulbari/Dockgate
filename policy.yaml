@@ -1,0 +1,90 @@
+# DockGate security policy
+# =========================
+# DockGate evaluates every Docker operation an agent requests against the rules
+# below, top to bottom. The FIRST rule whose `actions` match decides the outcome.
+# If no rule matches, `default_action` applies.
+#
+# Action names are canonical, e.g. container.create, container.start,
+# image.pull, network.remove. Use "<category>.*" (e.g. "container.*") to match a
+# whole category, or "*" to match everything.
+
+# What to do when no rule matches. Keep this "deny" so anything you did not
+# explicitly permit is refused.
+default_action: deny
+
+rules:
+  # --- Read-only introspection: always safe for an SRE agent. ---
+  - name: "Allow read-only inspection"
+    effect: allow
+    actions:
+      - system.ping
+      - system.version
+      - system.info
+      - system.df
+      - system.events
+      - container.list
+      - container.inspect
+      - container.logs
+      - container.top
+      - container.stats
+      - image.list
+      - image.inspect
+      - image.history
+      - network.list
+      - network.inspect
+      - volume.list
+      - volume.inspect
+
+  # --- Lifecycle control of existing containers. ---
+  - name: "Allow container lifecycle"
+    effect: allow
+    actions:
+      - container.start
+      - container.stop
+      - container.restart
+      - container.kill
+      - container.pause
+      - container.unpause
+      - container.wait
+
+  # --- Creating containers, but only from trusted images and without the
+  #     settings that would let a container escape to the host. ---
+  - name: "Allow creating hardened containers from approved images"
+    effect: allow
+    actions:
+      - container.create
+    allowed_images:
+      - "nginx"          # any tag of nginx
+      - "redis:*"        # any tag of redis
+      - "postgres:*"
+      - "alpine:*"
+      - "busybox:*"
+      - "ghcr.io/*"      # anything from your GitHub Container Registry org
+    deny_privileged: true
+    deny_host_network: true
+    deny_host_pid: true
+    deny_host_ipc: true
+    deny_bind_mounts: true
+    denied_capabilities:
+      - ALL
+
+  # --- Pulling approved images so the agent can prepare workloads. ---
+  - name: "Allow pulling images"
+    effect: allow
+    actions:
+      - image.pull
+
+  # --- Explicitly forbid the operations that grant host-level control, so a
+  #     denial is clearly attributable in the audit log. ---
+  - name: "Deny host-dangerous operations"
+    effect: deny
+    actions:
+      - container.exec       # exec into a running container
+      - exec.start
+      - container.update     # can raise limits / re-add privileges
+      - container.archive.write
+      - system.auth
+
+  # Everything else (image.build, image.push, network.create, volume.create,
+  # container.remove, swarm.*, service.*, secret.*, ...) falls through to
+  # default_action: deny.

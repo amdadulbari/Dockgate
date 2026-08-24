@@ -1,0 +1,12 @@
+.git
+.github
+*.md
+!policy.yaml
+bin/
+dist/
+dockgate
+*.log
+*.sock
+*.test
+*.out
+examples/
