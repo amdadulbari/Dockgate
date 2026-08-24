@@ -62,7 +62,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # Docker Hub's description API does NOT accept scoped access tokens
+      # ("insufficient scope"), so this only works if DOCKERHUB_TOKEN is an
+      # account password (and 2FA is off). It is best-effort and never fails the
+      # release; otherwise set the README once via the Docker Hub web UI from
+      # DOCKERHUB.md.
       - name: Sync Docker Hub README
+        continue-on-error: true
         uses: peter-evans/dockerhub-description@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
