@@ -116,6 +116,31 @@ reaches Docker exclusively through `tcp://dockgate:2375`.
 docker compose up --build
 ```
 
+### Use the prebuilt image
+
+Published multi-arch images (`linux/amd64`, `linux/arm64`) are on Docker Hub at
+[`amdadulbari/dockgate`](https://hub.docker.com/r/amdadulbari/dockgate):
+
+```bash
+docker run -d --name dockgate \
+  -p 127.0.0.1:2375:2375 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v "$PWD/policy.yaml:/etc/dockgate/policy.yaml:ro" \
+  --group-add "$(getent group docker | cut -d: -f3)" \
+  amdadulbari/dockgate:latest
+```
+
+Releases are cut by pushing a version tag; a GitHub Actions workflow
+([`docker-publish.yml`](.github/workflows/docker-publish.yml)) builds the image,
+pushes `X.Y.Z` / `X.Y` / `latest`, and syncs the Docker Hub description. It needs
+two repository secrets: `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` (a Docker Hub
+access token).
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0   # -> builds & publishes amdadulbari/dockgate:0.1.0 and :latest
+```
+
 ## Configuration
 
 Every flag has a `DOCKGATE_*` environment-variable fallback.
